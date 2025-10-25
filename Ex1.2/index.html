@@ -183,7 +183,7 @@
             const product = products.find(p => p.id === productId);
             const existing = cart.find(item => item.id === productId);
             if (existing) {
-                exising.quantity++;
+                existing.quantity++;
             }
             else {
                 cart.push({...product, quantity: 1});
