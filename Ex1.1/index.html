@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Form Validator</title>
@@ -11,17 +12,17 @@
             border: 1px solid #ddd;
             border-radius: 8px;
         }
-        
+
         .form-group {
             margin-bottom: 20px;
         }
-        
+
         label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
         }
-        
+
         input {
             width: 100%;
             padding: 10px;
@@ -29,26 +30,26 @@
             border-radius: 4px;
             font-size: 14px;
         }
-        
+
         input.valid {
             border-color: #28a745;
         }
-        
+
         input.invalid {
             border-color: #dc3545;
         }
-        
+
         .error-message {
             color: #dc3545;
             font-size: 12px;
             margin-top: 5px;
             display: none;
         }
-        
+
         .error-message.show {
             display: block;
         }
-        
+
         button[type="submit"] {
             width: 100%;
             padding: 12px;
@@ -59,13 +60,14 @@
             font-size: 16px;
             cursor: pointer;
         }
-        
+
         button[type="submit"]:disabled {
             background: #ccc;
             cursor: not-allowed;
         }
     </style>
 </head>
+
 <body>
     <div class="form-container">
         <h2>Sign Up Form</h2>
@@ -75,23 +77,23 @@
                 <input type="text" id="username" placeholder="Enter username">
                 <div class="error-message" id="usernameError"></div>
             </div>
-            
+
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="text" id="email" placeholder="your@gmail.com">
-                <div class="error-message" id="email"></div>
+                <input type="email" id="email" placeholder="your@gmail.com">
+                <div class="error-message" id="emailError"></div>
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="text" id="pass1" placeholder="Your password">
-                <div class="error-message" id="pass1"></div>
+                <input type="password" id="pass1" placeholder="Your password">
+                <div class="error-message" id="passwordError"></div>
             </div>
-            
+
             <div class="form-group">
                 <label for="passwordConfirm">Confirm Password</label>
-                <input type="text" id="pass2" placeholder="Enter your password again">
-                <div class="error-message" id="pass2"></div>
+                <input type="password" id="pass2" placeholder="Enter your password again">
+                <div class="error-message" id="confirmError"></div>
             </div>
 
             <button type="submit" id="submitBtn" disabled>Sign Up</button>
@@ -99,43 +101,120 @@
     </div>
 
     <script>
-        // TODO: Implement validation functions
-        
+        const usernameInput = document.getElementById('username')
+        const emailInput = document.getElementById('email')
+        const passwordInput = document.getElementById('pass1')
+        const confirmInput = document.getElementById('pass2')
+        const submitBtn = document.getElementById('submitBtn')
+
+        const validationState = {
+            username: false,
+            email: false,
+            pass1: false,
+            pass2: false
+        }
+
         function validateUsername(username) {
-            // TODO: Check length (4-20) and alphanumeric
+            const valid = /^[a-zA-Z0-9_]{4,20}$/.test(username);
+            if (!valid) {
+                showError('usernameError', 'Username must be 4-20 characters and alphanumeric');
+                usernameInput.classList.add('invalid');
+                usernameInput.classList.remove('valid');
+            } else {
+                clearError('usernameError');
+                usernameInput.classList.add('valid');
+                usernameInput.classList.remove('invalid');
+            }
+            validationState.username = true;
         }
-        
+
         function validateEmail(email) {
-            // TODO: Use regex for email validation
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const valid = emailRegex.test(email);
+            if (!valid) {
+                showError('emailError', 'Invalid email format');
+                emailInput.classList.add('invalid');
+                emailInput.classList.remove('valid');
+            } else {
+                clearError('emailError');
+                emailInput.classList.add('valid');
+                emailInput.classList.remove('invalid');
+            }
+            validationState.email = true;
         }
-        
-        function validatePassword(password) {
-            // TODO: Check length >= 8, has uppercase, has number
+
+        function validatePassword(pass1) {
+            const passRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+            const valid = passRegex.test(pass1);
+            if (!valid) {
+                showError('passwordError', 'Password must have at least 8 chars, one uppercase letter, and one number');
+                passwordInput.classList.add('invalid');
+                passwordInput.classList.remove('valid');
+            } else {
+                clearError('passwordError');
+                passwordInput.classList.add('valid');
+                passwordInput.classList.remove('invalid');
+            }
+            validationState.pass1 = true;
         }
-        
+
         function validatePasswordMatch(pass1, pass2) {
-            // TODO: Compare passwords
+            const valid = pass1 === pass2 && pass2.length > 0;
+            if (!valid) {
+                showError('confirmError', 'Passwords do not match');
+                confirmInput.classList.add('invalid');
+                confirmInput.classList.remove('valid');
+            } else {
+                clearError('confirmError');
+                confirmInput.classList.add('valid');
+                confirmInput.classList.remove('invalid');
+            }
+            validationState.pass2 = true;
         }
-        
+
         function showError(fieldId, message) {
-            // TODO: Display error message
+            const error = document.getElementById(fieldId);
+            error.textContent = message;
+            error.classList.add('show');
         }
-        
+
         function clearError(fieldId) {
-            // TODO: Clear error message
+            const error = document.getElementById(fieldId);
+            error.textContent = '';
+            error.classList.remove('show');
         }
-        
+
         function validateForm() {
-            // TODO: Validate all fields and enable/disable submit
+            const allValid = Object.values(validationState).every(v => v);
+            submitBtn.disabled = !allValid;
         }
-        
-        // TODO: Add event listeners for real-time validation
-        
-        document.getElementById('signupForm').addEventListener('submit', function(e) {
+
+        usernameInput.addEventListener('input', () => {
+            validateUsername(usernameInput.value.trim());
+            validateForm();
+        });
+
+        emailInput.addEventListener('input', () => {
+            validateEmail(emailInput.value.trim());
+            validateForm();
+        });
+
+        passwordInput.addEventListener('input', () => {
+            validatePassword(passwordInput.value);
+            validatePasswordMatch(passwordInput.value, confirmInput.value);
+            validateForm();
+        });
+
+        confirmInput.addEventListener('input', () => {
+            validatePasswordMatch(passwordInput.value, confirmInput.value);
+            validateForm();
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', function (e) {
             e.preventDefault();
-            // TODO: Handle form submission
+            alert('Form submitted successfully!');
         });
     </script>
 </body>
+
 </html>
